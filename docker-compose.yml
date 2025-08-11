@@ -1,0 +1,16 @@
+version: '3.8'
+services:
+  expensetracker:
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - input_images:/app/ExpenceTracker/input_images
+      - extracted_data:/app/ExpenceTracker/extracted_data
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_RUN_HOST=0.0.0.0
+      - TESSERACT_PATH=/usr/bin/tesseract
+volumes:
+  input_images:
+  extracted_data: 

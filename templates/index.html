@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receipt Scanner</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --background-color: #ffffff;
+            --text-color: #212529;
+            --border-color: #dee2e6;
+            --card-bg: #ffffff;
+            --input-bg: #ffffff;
+            --hover-bg: #f8f9fa;
+            --chart-text: #212529;
+            --modal-bg: #ffffff;
+        }
+
+        [data-theme="dark"] {
+            --primary-color: #0d6efd;
+            --secondary-color: #6c757d;
+            --background-color: #212529;
+            --text-color: #f8f9fa;
+            --border-color: #495057;
+            --card-bg: #2c3034;
+            --input-bg: #2c3034;
+            --hover-bg: #343a40;
+            --chart-text: #f8f9fa;
+            --modal-bg: #2c3034;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-color: var(--border-color);
+        }
+
+        .table {
+            color: var(--text-color);
+        }
+
+        .table tbody tr:hover {
+            background-color: var(--hover-bg);
+        }
+
+        .modal-content {
+            background-color: var(--modal-bg);
+            color: var(--text-color);
+        }
+
+        .form-control {
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            border-color: var(--border-color);
+        }
+
+        .form-control:focus {
+            background-color: var(--input-bg);
+            color: var(--text-color);
+        }
+
+        .navbar {
+            background-color: var(--background-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .btn-outline-primary {
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-outline-primary:hover {
+            background-color: var(--primary-color);
+            color: #ffffff;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+
+        #video-container {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 1rem;
+            border-radius: 0.5rem;
+        }
+
+        #canvas {
+            border: 2px dashed var(--border-color);
+        }
+
+        .action-buttons .btn {
+            margin: 0.5rem;
+            min-width: 120px;
+        }
+
+        .dark-mode .navbar {
+            background-color: var(--dark-secondary) !important;
+            border-bottom: 1px solid var(--border-dark);
+        }
+
+        .dark-mode .stats-card {
+            background-color: var(--dark-secondary);
+            border: 1px solid var(--border-dark);
+        }
+
+        .dark-mode .table {
+            background-color: var(--dark-secondary);
+            color: var(--text-light);
+        }
+
+        .dark-mode .table thead th {
+            background-color: var(--dark-accent);
+            border-bottom: 2px solid var(--border-dark);
+        }
+
+        .dark-mode .table td {
+            border-color: var(--border-dark);
+        }
+
+        .dark-mode .modal-content {
+            background-color: var(--dark-secondary);
+            border: 1px solid var(--border-dark);
+        }
+
+        .dark-mode .modal-header {
+            border-bottom: 1px solid var(--border-dark);
+        }
+
+        .dark-mode .modal-footer {
+            border-top: 1px solid var(--border-dark);
+        }
+
+        .dark-mode .form-control {
+            background-color: var(--dark-accent);
+            border-color: var(--border-dark);
+            color: var(--text-light);
+        }
+
+        .dark-mode .form-control:focus {
+            background-color: var(--dark-accent);
+            border-color: var(--accent-color);
+            color: var(--text-light);
+        }
+
+        .dark-mode .form-select {
+            background-color: var(--dark-accent);
+            border-color: var(--border-dark);
+            color: var(--text-light);
+        }
+
+        .dark-mode .btn-outline-secondary {
+            color: var(--text-light);
+            border-color: var(--text-light);
+        }
+
+        .dark-mode .btn-outline-secondary:hover {
+            background-color: var(--text-light);
+            color: var(--dark-bg);
+        }
+
+        .dark-mode .card {
+            background-color: var(--dark-secondary);
+            border: 1px solid var(--border-dark);
+        }
+
+        .dark-mode .text-muted {
+            color: rgba(255, 255, 255, 0.6) !important;
+        }
+
+        .dark-mode .chart-container {
+            background-color: var(--dark-secondary);
+            border-radius: 15px;
+            padding: 1rem;
+        }
+
+        .dark-mode .nav-link {
+            color: var(--text-light) !important;
+        }
+
+        .dark-mode .navbar-brand {
+            color: var(--text-light) !important;
+        }
+
+        /* Enhanced transitions */
+        .navbar,
+        .stats-card,
+        .table,
+        .modal-content,
+        .form-control,
+        .btn,
+        .card {
+            transition: all 0.3s ease;
+        }
+
+        /* Dark mode toggle enhancement */
+        .theme-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .dark-mode .theme-toggle {
+            background-color: var(--dark-accent);
+            color: var(--text-light);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-color) !important;
+        }
+
+        .nav-link {
+            font-weight: 500;
+            color: var(--secondary-color) !important;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--accent-color) !important;
+        }
+
+        .stats-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+        }
+
+        .stats-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .table thead th {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: rgba(52, 152, 219, 0.05);
+        }
+
+        .btn {
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .modal-header {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .form-control {
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 0.75rem;
+        }
+
+        .form-control:focus {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 0.25rem rgba(52, 152, 219, 0.25);
+        }
+
+        .preview-container {
+            display: none;
+            margin-top: 20px;
+            text-align: center;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: var(--card-bg);
+        }
+
+        .preview-container img {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 4px;
+            object-fit: contain;
+        }
+
+        .form-select {
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            border-color: var(--border-color);
+        }
+
+        .form-select:focus {
+            background-color: var(--input-bg);
+            color: var(--text-color);
+        }
+
+        .btn-close {
+            filter: brightness(1);
+        }
+
+        [data-theme="dark"] .btn-close {
+            filter: invert(1) grayscale(100%) brightness(200%);
+        }
+    </style>
+</head>
+<body>
+    <!-- Add this right after the opening <body> tag -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{{ url_for('dashboard') }}">
+                <i class="fas fa-chart-line me-2"></i>Expense Tracker
+            </a>
+            <div class="ms-auto d-flex align-items-center">
+                <a href="{{ url_for('profile') }}" class="btn btn-outline-primary me-2">
+                    <i class="fas fa-user me-2"></i>Profile
+                </a>
+                <button id="darkModeToggle" class="btn btn-outline-primary me-2">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <a href="{{ url_for('logout') }}" class="btn btn-outline-danger">
+                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="stats-card text-center">
+                    <i class="fas fa-receipt stats-icon text-primary"></i>
+                    <h3 class="total-receipts">0</h3>
+                    <p class="text-muted mb-0">Total Receipts</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card text-center">
+                    <i class="fas fa-money-bill-wave stats-icon text-success"></i>
+                    <h3 class="total-amount">$0</h3>
+                    <p class="text-muted mb-0">Total Amount</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card text-center">
+                    <i class="fas fa-calendar stats-icon text-warning"></i>
+                    <h3 class="this-month">0</h3>
+                    <p class="text-muted mb-0">This Month</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card text-center">
+                    <i class="fas fa-tags stats-icon text-danger"></i>
+                    <h3 class="categories">0</h3>
+                    <p class="text-muted mb-0">Categories</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Theme Toggle -->
+        <button class="theme-toggle btn btn-light" onclick="toggleTheme()" title="Toggle Dark Mode">
+            <i class="fas fa-moon"></i>
+        </button>
+
+        <h1 class="text-center mb-4">Receipt Scanner</h1>
+        
+        <!-- Upload Section -->
+        <div class="card upload-container">
+            <div class="text-center">
+                <h3>Upload Receipt</h3>
+                <p class="text-muted">Upload an image of your receipt or capture using camera</p>
+                
+                <div class="mb-3">
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-primary" id="cameraBtn">
+                            <i class="fas fa-camera me-2"></i>Use Camera
+                        </button>
+                        <button type="button" class="btn btn-secondary" id="uploadBtn">
+                            <i class="fas fa-upload me-2"></i>Upload File
+                        </button>
+                    </div>
+                </div>
+
+                <div id="cameraContainer" style="display: none;">
+                    <video id="video" autoplay playsinline style="max-width: 100%; border-radius: 5px;"></video>
+                    <div class="mt-3">
+                        <button type="button" class="btn btn-success" id="captureBtn">
+                            <i class="fas fa-camera me-2"></i>Capture
+                        </button>
+                        <button type="button" class="btn btn-danger" id="stopCameraBtn">
+                            <i class="fas fa-stop me-2"></i>Stop Camera
+                        </button>
+                    </div>
+                </div>
+
+                <div id="fileUploadContainer" style="display: none;">
+                    <form id="uploadForm" action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data" class="mt-4">
+                        <div class="mb-3">
+                            <input type="file" class="form-control" id="fileInput" accept="image/*" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-upload me-2"></i>Upload and Process
+                        </button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="preview-container mt-4" id="previewContainer" style="display: none;">
+                <h5 class="mb-3">Preview</h5>
+                <img id="previewImage" src="#" alt="Receipt Preview" class="img-fluid">
+            </div>
+        </div>
+
+        <!-- Table Section -->
+        <div class="card table-container">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3>Receipt History</h3>
+                <div>
+                    <button class="btn btn-primary me-2" onclick="processExistingImages()">
+                        <i class="fas fa-sync-alt me-2"></i>Process Existing Images
+                    </button>
+                    <button class="btn btn-success export-btn me-2" onclick="exportToExcel()">
+                        <i class="fas fa-file-excel me-2"></i>Export
+                    </button>
+                    <button class="btn btn-info export-btn" onclick="exportToCSV()">
+                        <i class="fas fa-file-csv me-2"></i>CSV
+                    </button>
+                </div>
+            </div>
+
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" class="form-control" id="searchInput" placeholder="Search receipts...">
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th onclick="sortTable(0)">Date <i class="fas fa-sort"></i></th>
+                            <th onclick="sortTable(1)">Type <i class="fas fa-sort"></i></th>
+                            <th onclick="sortTable(2)">Amount <i class="fas fa-sort"></i></th>
+                            <th onclick="sortTable(3)">Category <i class="fas fa-sort"></i></th>
+                            <th class="text-center">Receipt</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="receiptTableBody">
+                        <!-- Data will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Analytics Section -->
+        <div class="card">
+            <div class="card-body">
+                <h3>Analytics</h3>
+                <div class="row">
+                    <div class="col-md-6">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                    <div class="col-md-6">
+                        <canvas id="monthlyChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Receipt Modal -->
+        <div class="modal fade" id="editReceiptModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Edit Receipt Details</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="editReceiptForm">
+                            <input type="hidden" id="editFileName">
+                            <div class="mb-3">
+                                <label class="form-label">Type</label>
+                                <select class="form-select" id="editType" required>
+                                    <option value="Invoice">Invoice</option>
+                                    <option value="Bill">Bill</option>
+                                    <option value="Receipt">Receipt</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Date</label>
+                                <input type="date" class="form-control" id="editDate" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Amount</label>
+                                <input type="number" class="form-control" id="editAmount" step="0.01" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Category</label>
+                                <select class="form-select" id="editCategory" required>
+                                    <option value="Food">Food</option>
+                                    <option value="Travel">Travel</option>
+                                    <option value="Entertainment">Entertainment</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" onclick="saveReceiptEdit()">Save Changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Theme toggle
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.querySelector('.theme-toggle i');
+            
+            body.classList.toggle('dark-mode');
+            icon.classList.toggle('fa-moon');
+            icon.classList.toggle('fa-sun');
+            
+            // Save preference
+            const isDarkMode = body.classList.contains('dark-mode');
+            localStorage.setItem('darkMode', isDarkMode);
+            
+            // Update charts if they exist
+            if (typeof updateCharts === 'function') {
+                updateCharts(window.currentData || []);
+            }
+        }
+        
+        // Load saved preference
+        document.addEventListener('DOMContentLoaded', () => {
+            const isDarkMode = localStorage.getItem('darkMode') === 'true';
+            if (isDarkMode) {
+                toggleTheme();
+            }
+        });
+
+        // Camera functionality
+        const video = document.getElementById('video');
+        const cameraBtn = document.getElementById('cameraBtn');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const cameraContainer = document.getElementById('cameraContainer');
+        const fileUploadContainer = document.getElementById('fileUploadContainer');
+        const captureBtn = document.getElementById('captureBtn');
+        const stopCameraBtn = document.getElementById('stopCameraBtn');
+        let stream = null;
+
+        cameraBtn.addEventListener('click', async () => {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+                cameraContainer.style.display = 'block';
+                fileUploadContainer.style.display = 'none';
+                cameraBtn.disabled = true;
+                uploadBtn.disabled = false;
+            } catch (err) {
+                alert('Error accessing camera: ' + err.message);
+            }
+        });
+
+        uploadBtn.addEventListener('click', () => {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+            cameraContainer.style.display = 'none';
+            fileUploadContainer.style.display = 'block';
+            cameraBtn.disabled = false;
+            uploadBtn.disabled = true;
+        });
+
+        stopCameraBtn.addEventListener('click', () => {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+            cameraContainer.style.display = 'none';
+            fileUploadContainer.style.display = 'block';
+            cameraBtn.disabled = false;
+            uploadBtn.disabled = true;
+        });
+
+        captureBtn.addEventListener('click', async () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            
+            const previewContainer = document.getElementById('previewContainer');
+            const previewImage = document.getElementById('previewImage');
+            
+            previewContainer.style.display = 'block';
+            previewImage.src = canvas.toDataURL('image/jpeg');
+            
+            canvas.toBlob(async (blob) => {
+                const formData = new FormData();
+                formData.append('file', blob, 'captured_receipt.jpg');
+
+                try {
+                    const response = await fetch("{{ url_for('upload_file') }}", {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Upload failed');
+                    }
+
+                    const result = await response.json();
+                    alert('Receipt processed successfully!');
+                    await loadReceiptData();
+                    
+                    if (stream) {
+                        stream.getTracks().forEach(track => track.stop());
+                    }
+                    cameraContainer.style.display = 'none';
+                    fileUploadContainer.style.display = 'block';
+                    cameraBtn.disabled = false;
+                    uploadBtn.disabled = true;
+                } catch (error) {
+                    alert('Error processing receipt: ' + error.message);
+                }
+            }, 'image/jpeg', 0.95);
+        });
+
+        // Preview image before upload
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const previewContainer = document.getElementById('previewContainer');
+            const previewImage = document.getElementById('previewImage');
+            
+            if (this.files && this.files[0]) {
+                previewContainer.style.display = 'block';
+                previewImage.src = URL.createObjectURL(this.files[0]);
+            }
+        });
+
+        // Handle form submission
+        document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData();
+            const fileInput = document.getElementById('fileInput');
+            
+            if (fileInput.files.length === 0) {
+                alert('Please select a file');
+                return;
+            }
+
+            formData.append('file', fileInput.files[0]);
+
+            try {
+                const response = await fetch("{{ url_for('upload_file') }}", {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error('Upload failed');
+                }
+
+                const result = await response.json();
+                alert('Receipt processed successfully!');
+                loadReceiptData();
+                fileInput.value = '';
+                document.getElementById('previewContainer').style.display = 'none';
+            } catch (error) {
+                alert('Error processing receipt: ' + error.message);
+            }
+        });
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const searchText = e.target.value.toLowerCase();
+            const rows = document.querySelectorAll('#receiptTableBody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchText) ? '' : 'none';
+            });
+        });
+
+        // Sort functionality
+        function sortTable(columnIndex) {
+            const table = document.querySelector('table');
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            
+            rows.sort((a, b) => {
+                const aValue = a.cells[columnIndex].textContent;
+                const bValue = b.cells[columnIndex].textContent;
+                
+                // Handle numeric values
+                if (columnIndex === 2) { // Amount column
+                    const aNum = parseFloat(aValue.replace(/[^0-9.-]+/g, ''));
+                    const bNum = parseFloat(bValue.replace(/[^0-9.-]+/g, ''));
+                    return aNum - bNum;
+                }
+                
+                // Handle date values
+                if (columnIndex === 0) { // Date column
+                    return new Date(aValue) - new Date(bValue);
+                }
+                
+                // Default string comparison
+                return aValue.localeCompare(bValue);
+            });
+            
+            // Clear and re-append sorted rows
+            tbody.innerHTML = '';
+            rows.forEach(row => tbody.appendChild(row));
+        }
+
+        // Export functionality
+        async function exportToExcel() {
+            try {
+                const response = await fetch("{{ url_for('export_excel') }}");
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'receipts.xlsx';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            } catch (error) {
+                alert('Error exporting to Excel: ' + error.message);
+            }
+        }
+
+        async function exportToCSV() {
+            try {
+                const response = await fetch("{{ url_for('export_csv') }}");
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'receipts.csv';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            } catch (error) {
+                alert('Error exporting to CSV: ' + error.message);
+            }
+        }
+
+        // View receipt image
+        function viewReceipt(filename) {
+            if (!filename) {
+                alert('No image available');
+                return;
+            }
+            
+            const imageUrl = "{{ url_for('serve_image', filename='') }}" + encodeURIComponent(filename);
+            const modal = document.createElement('div');
+            modal.className = 'modal fade';
+            modal.id = 'imageModal';
+            modal.setAttribute('tabindex', '-1');
+            modal.innerHTML = `
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Receipt Image</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body text-center">
+                            <img src="${imageUrl}" class="img-fluid" alt="Receipt" 
+                                style="max-height: 80vh;"
+                                onerror="this.onerror=null; this.src='data:image/svg+xml;charset=UTF-8,%3csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\'%3e%3ctext x=\'50\' y=\'50\' font-family=\'Arial\' font-size=\'14\' fill=\'%23000\' text-anchor=\'middle\'%3eImage not found%3c/text%3e%3c/svg%3e';">
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            const modalInstance = new bootstrap.Modal(modal);
+            modalInstance.show();
+            
+            modal.addEventListener('hidden.bs.modal', function () {
+                document.body.removeChild(modal);
+            });
+        }
+
+        // Delete receipt
+        async function deleteReceipt(filename) {
+            if (!filename) {
+                alert('No file to delete');
+                return;
+            }
+            
+            if (confirm(`Are you sure you want to delete the receipt "${filename}"?`)) {
+                try {
+                    const response = await fetch("{{ url_for('delete_receipt', filename='') }}" + encodeURIComponent(filename), {
+                        method: 'DELETE'
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (!response.ok) {
+                        throw new Error(result.error || 'Failed to delete receipt');
+                    }
+                    
+                    // Find and remove the row from the table
+                    const row = document.querySelector(`tr[data-filename="${filename}"]`);
+                    if (row) {
+                        row.remove();
+                    }
+                    
+                    // Get current data
+                    const currentData = await fetch("{{ url_for('get_data') }}").then(res => res.json());
+                    
+                    // Update statistics and charts
+                    updateStats(currentData);
+                    
+                    // Show success message
+                    alert(result.message || 'Receipt deleted successfully');
+                } catch (error) {
+                    console.error('Error deleting receipt:', error);
+                    alert('Error deleting receipt: ' + error.message);
+                }
+            }
+        }
+
+        // Update statistics
+        function updateStats(data) {
+            const totalReceipts = data.length;
+            const totalAmount = data.reduce((sum, item) => {
+                const amount = parseFloat(item.amount?.replace(/[^0-9.-]+/g, '') || 0);
+                return sum + amount;
+            }, 0);
+            const avgAmount = totalReceipts > 0 ? totalAmount / totalReceipts : 0;
+            
+            const currentMonth = new Date().getMonth();
+            const receiptsThisMonth = data.filter(item => {
+                if (item.date === 'Not found') return false;
+                try {
+                    const date = new Date(item.date);
+                    return !isNaN(date.getTime()) && date.getMonth() === currentMonth;
+                } catch (e) {
+                    return false;
+                }
+            }).length;
+
+            document.querySelector('.total-receipts').textContent = totalReceipts;
+            document.querySelector('.total-amount').textContent = `$${totalAmount.toFixed(2)}`;
+            document.querySelector('.this-month').textContent = receiptsThisMonth;
+            document.querySelector('.categories').textContent = data.length;
+
+            // Update charts
+            updateCharts(data);
+        }
+
+        // Update charts
+        let categoryChart = null;
+        let monthlyChart = null;
+
+        function updateCharts(data) {
+            if (categoryChart) {
+                categoryChart.destroy();
+            }
+            if (monthlyChart) {
+                monthlyChart.destroy();
+            }
+
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            const textColor = isDark ? '#f8f9fa' : '#212529';
+
+            if (!data || data.length === 0) {
+                const emptyConfig = {
+                    type: 'pie',
+                    data: {
+                        labels: ['No Data'],
+                        datasets: [{
+                            data: [1],
+                            backgroundColor: ['#e9ecef']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'No Data Available',
+                                color: textColor
+                            }
+                        }
+                    }
+                };
+
+                const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+                const monthlyCtx = document.getElementById('monthlyChart').getContext('2d');
+                
+                categoryChart = new Chart(categoryCtx, emptyConfig);
+                monthlyChart = new Chart(monthlyCtx, {
+                    ...emptyConfig,
+                    type: 'bar'
+                });
+                
+                return;
+            }
+
+            // Category distribution
+            const categoryData = {};
+            data.forEach(item => {
+                const category = item.category || 'Other';
+                categoryData[category] = (categoryData[category] || 0) + 1;
+            });
+
+            const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+            categoryChart = new Chart(categoryCtx, {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(categoryData),
+                    datasets: [{
+                        data: Object.values(categoryData),
+                        backgroundColor: [
+                            '#4e73df',
+                            '#1cc88a',
+                            '#36b9cc',
+                            '#f6c23e'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Receipts by Category',
+                            color: textColor
+                        }
+                    }
+                }
+            });
+
+            // Monthly distribution
+            const monthlyData = {};
+            data.forEach(item => {
+                if (item.date && item.date !== 'Not found') {
+                    const date = new Date(item.date);
+                    if (!isNaN(date.getTime())) {
+                        const month = date.toLocaleString('default', { month: 'short' });
+                        monthlyData[month] = (monthlyData[month] || 0) + 1;
+                    }
+                }
+            });
+
+            const monthlyCtx = document.getElementById('monthlyChart').getContext('2d');
+            monthlyChart = new Chart(monthlyCtx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(monthlyData),
+                    datasets: [{
+                        label: 'Receipts',
+                        data: Object.values(monthlyData),
+                        backgroundColor: '#4e73df'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Receipts by Month',
+                            color: textColor
+                        }
+                    }
+                }
+            });
+        }
+
+        // Edit receipt
+        function editReceipt(filename, type, date, amount, category) {
+            const modal = new bootstrap.Modal(document.getElementById('editReceiptModal'));
+            
+            // Set current values
+            document.getElementById('editFileName').value = filename;
+            document.getElementById('editType').value = type === 'Unknown' ? 'Other' : type;
+            
+            // Format date for input if it's not "Not found"
+            if (date && date !== 'Not found') {
+                try {
+                    const dateObj = new Date(date);
+                    const formattedDate = dateObj.toISOString().split('T')[0];
+                    document.getElementById('editDate').value = formattedDate;
+                } catch (e) {
+                    document.getElementById('editDate').value = '';
+                }
+            } else {
+                document.getElementById('editDate').value = '';
+            }
+            
+            // Format amount for input
+            document.getElementById('editAmount').value = amount === 'Not found' ? '' : 
+                amount.replace(/[^0-9.-]+/g, '');
+            
+            document.getElementById('editCategory').value = category === 'Other' ? 'Other' : category;
+            
+            modal.show();
+        }
+
+        // Save receipt edit
+        async function saveReceiptEdit() {
+            const filename = document.getElementById('editFileName').value;
+            const type = document.getElementById('editType').value;
+            const date = document.getElementById('editDate').value;
+            const amount = document.getElementById('editAmount').value;
+            const category = document.getElementById('editCategory').value;
+
+            try {
+                const response = await fetch("{{ url_for('update_receipt') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        filename,
+                        type,
+                        date,
+                        amount,
+                        category
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to update receipt');
+                }
+
+                const result = await response.json();
+                
+                // Close modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('editReceiptModal'));
+                modal.hide();
+                
+                // Reload data
+                await loadReceiptData();
+                
+                alert('Receipt updated successfully!');
+            } catch (error) {
+                alert('Error updating receipt: ' + error.message);
+            }
+        }
+
+        // Update the row generation in loadReceiptData() function to include edit button
+        function updateTableRow(item) {
+            return `
+                <td>${item.date || 'Not found'}</td>
+                <td>${item.type || 'Unknown'}</td>
+                <td>${item.amount || 'Not found'}</td>
+                <td><span class="category-badge category-${(item.category || 'other').toLowerCase()}">${item.category || 'Other'}</span></td>
+                <td class="text-center">
+                    <button class="btn btn-sm btn-primary" onclick="viewReceipt('${item.file}')" title="View Receipt">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </td>
+                <td>
+                    <div class="d-flex justify-content-center gap-2">
+                        <button class="btn btn-sm btn-warning" onclick="editReceipt('${item.file}', '${item.type || 'Unknown'}', '${item.date || 'Not found'}', '${item.amount || 'Not found'}', '${item.category || 'Other'}')" title="Edit Receipt">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger" onclick="deleteReceipt('${item.file}')" title="Delete Receipt">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            `;
+        }
+
+        // Update the loadReceiptData function to use the new row generation
+        async function loadReceiptData() {
+            try {
+                const response = await fetch("{{ url_for('get_data') }}");
+                if (!response.ok) {
+                    throw new Error('Failed to load receipt data');
+                }
+                const data = await response.json();
+                console.log('Received data:', data);
+                
+                const tableBody = document.getElementById('receiptTableBody');
+                tableBody.innerHTML = '';
+
+                if (data && data.length > 0) {
+                    data.forEach(item => {
+                        console.log('Processing item:', item);
+                        const row = document.createElement('tr');
+                        row.setAttribute('data-filename', item.file || '');
+                        row.innerHTML = updateTableRow(item);
+                        tableBody.appendChild(row);
+                    });
+                    
+                    // Update statistics and charts
+                    updateStats(data);
+                } else {
+                    tableBody.innerHTML = '<tr><td colspan="6" class="text-center">No receipts found</td></tr>';
+                    // Reset statistics when no data
+                    document.querySelector('.total-receipts').textContent = '0';
+                    document.querySelector('.total-amount').textContent = '$0';
+                    document.querySelector('.this-month').textContent = '0';
+                    document.querySelector('.categories').textContent = '0';
+                    
+                    // Clear charts
+                    updateCharts([]);
+                }
+            } catch (error) {
+                console.error('Error loading receipt data:', error);
+                const tableBody = document.getElementById('receiptTableBody');
+                tableBody.innerHTML = '<tr><td colspan="6" class="text-center text-danger">Error loading receipt data</td></tr>';
+            }
+        }
+
+        // Process existing images
+        async function processExistingImages() {
+            try {
+                const response = await fetch("{{ url_for('process_existing_images') }}");
+                if (!response.ok) {
+                    throw new Error('Failed to process existing images');
+                }
+                const result = await response.json();
+                
+                if (result.error) {
+                    throw new Error(result.error);
+                }
+                
+                alert(result.message);
+                
+                // If we have data in the response, update the table directly
+                if (result.data && result.data.length > 0) {
+                    updateTable(result.data);
+                } else {
+                    // Otherwise, reload the data from the server
+                    await loadReceiptData();
+                }
+            } catch (error) {
+                alert('Error processing existing images: ' + error.message);
+            }
+        }
+
+        // Update table with data
+        function updateTable(data) {
+            console.log('Updating table with data:', data);
+            const tableBody = document.getElementById('receiptTableBody');
+            tableBody.innerHTML = '';
+
+            if (data && data.length > 0) {
+                data.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${item.date || 'Not found'}</td>
+                        <td>${item.type || 'Unknown'}</td>
+                        <td>${item.amount || 'Not found'}</td>
+                        <td><span class="category-badge category-${(item.category || 'other').toLowerCase()}">${item.category || 'Other'}</span></td>
+                        <td class="text-center">
+                            <button class="btn btn-sm btn-primary" onclick="viewReceipt('${item.file}')" title="View Receipt">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </td>
+                        <td>
+                            <div class="d-flex justify-content-center gap-2">
+                                <button class="btn btn-sm btn-warning" onclick="editReceipt('${item.file}', '${item.type || 'Unknown'}', '${item.date || 'Not found'}', '${item.amount || 'Not found'}', '${item.category || 'Other'}')" title="Edit Receipt">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteReceipt('${item.file}')" title="Delete Receipt">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+                
+                // Update statistics and charts
+                updateStats(data);
+            } else {
+                tableBody.innerHTML = '<tr><td colspan="6" class="text-center">No receipts found</td></tr>';
+                // Reset statistics when no data
+                document.querySelector('.total-receipts').textContent = '0';
+                document.querySelector('.total-amount').textContent = '$0';
+                document.querySelector('.this-month').textContent = '0';
+                document.querySelector('.categories').textContent = '0';
+            }
+        }
+
+        // Load initial data
+        document.addEventListener('DOMContentLoaded', () => {
+        loadReceiptData();
+        });
+    </script>
+</body>
+</html> 
